@@ -52,7 +52,7 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
         if (arguments != null) {
             mUri = arguments.getParcelable(RECIPE_URI);
         }
-        View rootview = inflater.inflate(R.layout.fragment_ingredints, container, false);
+        View rootview = inflater.inflate(R.layout.fragment_recipe, container, false);
         mTitleView = (TextView) rootview.findViewById(R.id.ingrdTitle);
         mImageView = (ImageView) rootview.findViewById(R.id.ingrdImage);
         mTextView = (TextView) rootview.findViewById(R.id.ingrdText);

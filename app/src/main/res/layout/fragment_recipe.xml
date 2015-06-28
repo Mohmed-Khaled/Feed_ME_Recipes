@@ -12,7 +12,7 @@
             android:id="@+id/ingrdTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="30dp"/>
+            android:textSize="30sp"/>
         <ImageView
             android:id="@+id/ingrdImage"
             android:layout_width="wrap_content"
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:textSize="20dp"/>
+            android:textSize="18sp"/>
     </LinearLayout>
 
 </ScrollView>
