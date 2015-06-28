@@ -119,10 +119,11 @@ public class Utilities {
     public static ContentValues getRecipeData(JSONObject jsonObject)
     {
         ContentValues returnValues = new ContentValues() ;
-        String text = null;
+        String text = "";
         JSONObject recipeObject = jsonObject.optJSONObject("recipe");
         JSONArray ingredients = recipeObject.optJSONArray("ingredients");
         for (int i = 0;i < ingredients.length();i++){
+            text += String.valueOf(i+1)+"] ";
             text += ingredients.optString(i);
             text += ",\n";
         }
