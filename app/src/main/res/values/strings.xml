@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Feed ME Recipes</string>
+    <string name="action_settings">Settings</string>
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">feedmerecipes.example.com</string>
+    <string name="content_authority">com.example.android.feedmerecipes</string>
+    <string name="title_activity_ingredints">IngredintsActivity</string>
+
+</resources>
