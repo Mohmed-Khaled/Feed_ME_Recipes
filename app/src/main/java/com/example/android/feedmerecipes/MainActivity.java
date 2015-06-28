@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.example.android.feedmerecipes.extra.Utilities;
-import com.example.android.feedmerecipes.sync.RecipesSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements MainFragment.Callback {
 
@@ -17,7 +16,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
         setContentView(R.layout.activity_main);
         if (!Utilities.isNetworkStatusAvailable(this)){
             Toast.makeText(this,"No Internet Connection",Toast.LENGTH_SHORT).show();
-            RecipesSyncAdapter.initializeSyncAdapter(this);
         }
     }
 

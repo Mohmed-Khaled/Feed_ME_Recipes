@@ -24,35 +24,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name=".data.RecipesProvider"
-            android:authorities="com.example.android.feedmerecipes"
-            android:exported="false"
-            android:syncable="true" >
-        </provider>
-
-        <service android:name=".sync.RecipesAuthenticatorService" >
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
-        <!-- The SyncAdapter service -->
-        <service
-            android:name=".sync.RecipesSyncService"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
-        </service>
-
         <activity
             android:name=".RecipeActivity"
             android:label="@string/title_activity_ingredints"
@@ -61,6 +32,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.android.feedmerecipes.MainActivity" />
         </activity>
+
+        <provider
+            android:name=".data.RecipesProvider"
+            android:authorities="com.example.android.feedmerecipes"
+            android:exported="false"
+            android:syncable="true" >
+        </provider>
+
+        <service
+            android:name=".service.RecipesService"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

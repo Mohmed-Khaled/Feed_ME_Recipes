@@ -36,10 +36,10 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
             Recipes.COLUMN_TEXT,
     };
     // These indices are tied to RECIPE_COLUMNS.If RECIPE_COLUMNS changes, these must change.
-    public static final int COL_RECIPE_ID = 0;
+    //public static final int COL_RECIPE_ID = 0;
     public static final int COL_RECIPE_TITLE = 1;
     public static final int COL_RECIPE_URL = 2;
-    public static final int COL_RECIPE_RID = 3;
+    //public static final int COL_RECIPE_RID = 3;
     public static final int COL_RECIPE_TEXT = 4;
 
     public RecipeFragment() {

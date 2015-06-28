@@ -1,5 +1,6 @@
 package com.example.android.feedmerecipes;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +16,7 @@ import android.widget.ListView;
 
 import com.example.android.feedmerecipes.data.RecipesContract;
 import com.example.android.feedmerecipes.extra.RecipesAdapter;
-import com.example.android.feedmerecipes.sync.RecipesSyncAdapter;
+import com.example.android.feedmerecipes.service.RecipesService;
 
 public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -29,11 +30,11 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
             RecipesContract.Recipes.COLUMN_TEXT,
     };
     // These indices are tied to RECIPE_COLUMNS.If RECIPE_COLUMNS changes, these must change.
-    public static final int COL_RECIPE_ID = 0;
+    //public static final int COL_RECIPE_ID = 0;
     public static final int COL_RECIPE_TITLE = 1;
-    public static final int COL_RECIPE_URL = 2;
+    //public static final int COL_RECIPE_URL = 2;
     public static final int COL_RECIPE_RID = 3;
-    public static final int COL_RECIPE_TEXT = 4;
+    //public static final int COL_RECIPE_TEXT = 4;
 
 
     public MainFragment() {
@@ -54,7 +55,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                 if (cursor != null) {
                     String title = cursor.getString(COL_RECIPE_TITLE);
                     String rId = cursor.getString(COL_RECIPE_RID);
-                    updateRecipe(title,rId);
+                    updateRecipes(title,rId);
                     ((Callback) getActivity()).onItemSelected(RecipesContract.Recipes.buildRecipeUri(rId));
                 }
             }
@@ -65,15 +66,14 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onStart() {
         super.onStart();
-        updateRecipes();
+        updateRecipes(null,null);
     }
 
-    private void updateRecipes() {
-        RecipesSyncAdapter.syncImmediately(getActivity(),null,null);
-    }
-    private void updateRecipe(String title,String rId) {
-        RecipesSyncAdapter.syncImmediately(getActivity(),title,rId);
-    }
+    private void updateRecipes(String title,String rId) {
+        Intent intent = new Intent(getActivity(), RecipesService.class);
+        intent.putExtra(RecipesService.TITLE_EXTRA,title);
+        intent.putExtra(RecipesService.RID_EXTRA,rId);
+        getActivity().startService(intent);    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
