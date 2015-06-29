@@ -40,7 +40,7 @@ public class RecipesProvider extends ContentProvider {
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, RecipesContract.PATH_RECIPES, RECIPES);
         matcher.addURI(authority, RecipesContract.PATH_RECIPES + "/*", RECIPE);
-        matcher.addURI(authority, RecipesContract.PATH_HISTORY , HISTORY);
+        matcher.addURI(authority, RecipesContract.PATH_SEARCH, HISTORY);
         matcher.addURI(authority, RecipesContract.PATH_SEARCH + "/*", SEARCH);
         matcher.addURI(authority, RecipesContract.PATH_SEARCH + "/*/*", SEARCH_ITEM);
         matcher.addURI(authority, RecipesContract.PATH_FAVORITES, FAVORITES);
@@ -86,18 +86,6 @@ public class RecipesProvider extends ContentProvider {
                         null,
                         null,
                         null
-                );
-                break;
-            case HISTORY:
-                sortOrder = RecipesContract.History.COLUMN_FREQUENCY + " DESC";
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        RecipesContract.History.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
                 );
                 break;
             case SEARCH:
@@ -170,8 +158,6 @@ public class RecipesProvider extends ContentProvider {
                 return RecipesContract.Recipes.CONTENT_TYPE;
             case RECIPE:
                 return RecipesContract.Recipes.CONTENT_ITEM_TYPE;
-            case HISTORY:
-                return RecipesContract.History.CONTENT_TYPE;
             case SEARCH:
                 return RecipesContract.Search.CONTENT_TYPE;
             case SEARCH_ITEM:
@@ -200,17 +186,6 @@ public class RecipesProvider extends ContentProvider {
                 );
                 if (insertID > 0)
                     newInsert = RecipesContract.Recipes.buildRecipeUri(insertID);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            case HISTORY:
-                insertID = db.insert(
-                        RecipesContract.History.TABLE_NAME,
-                        null,
-                        contentValues
-                );
-                if (insertID > 0)
-                    newInsert = RecipesContract.History.buildHistoryUri(insertID);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -256,19 +231,13 @@ public class RecipesProvider extends ContentProvider {
                 );
                 break;
             case HISTORY:
-                rowsDeleted = db.delete(RecipesContract.History.TABLE_NAME,
-                        selection,
-                        selectionArgs
-                );
-                break;
-            case SEARCH:
                 rowsDeleted = db.delete(RecipesContract.Search.TABLE_NAME,
                         selection,
                         selectionArgs
                 );
                 break;
             case FAVORITES:
-                rowsDeleted = db.delete(RecipesContract.Recipes.TABLE_NAME,
+                rowsDeleted = db.delete(RecipesContract.Favorites.TABLE_NAME,
                         selection,
                         selectionArgs
                 );
@@ -277,7 +246,7 @@ public class RecipesProvider extends ContentProvider {
                 String favoriteRId = RecipesContract.getUriParam(uri);
                 selection = RecipesContract.Favorites.COLUMN_RID + " = ?";
                 selectionArgs = new String[] {favoriteRId};
-                rowsDeleted = db.delete(RecipesContract.Recipes.TABLE_NAME,
+                rowsDeleted = db.delete(RecipesContract.Favorites.TABLE_NAME,
                         selection,
                         selectionArgs
                 );
@@ -312,7 +281,7 @@ public class RecipesProvider extends ContentProvider {
                 String searchRId = RecipesContract.getUriParam(uri);
                 selection = RecipesContract.Search.COLUMN_RID + " = ?";
                 selectionArgs = new String[] {searchRId};
-                rowsUpdated = db.update(RecipesContract.Recipes.TABLE_NAME,
+                rowsUpdated = db.update(RecipesContract.Search.TABLE_NAME,
                         contentValues,
                         selection,
                         selectionArgs

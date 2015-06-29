@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,47 +23,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class Utilities {
 
-/*    public static void updateHistory (Context context,String text) {
-
-        ContentResolver resolver = context.getContentResolver();
-        Uri checkEntry = InputHistoryContract.InputEntry.buildEntryUri(text);
-        String[] columns = {
-                InputHistoryContract.InputEntry.COLUMN_TEXT,
-                InputHistoryContract.InputEntry.COLUMN_FREQUENCY
-        };
-        Cursor cursor = resolver.query(
-                checkEntry,  // Table to Query
-                columns,
-                "", // Columns for the "where" clause
-                new String[]{""}, // Values for the "where" clause
-                null // sort order
-        );
-        if (cursor.moveToFirst()) {
-            int frequencyIndex = cursor.getColumnIndex((InputHistoryContract.InputEntry.COLUMN_FREQUENCY));
-            int frequency = cursor.getInt(frequencyIndex);
-            frequency++;
-            ContentValues values = new ContentValues();
-            values.put(InputHistoryContract.InputEntry.COLUMN_FREQUENCY, frequency);
-            int rowUpdate = resolver.update(
-                    checkEntry,
-                    values,
-                    "",
-                    new String[]{""}
-            );
-        } else {
-            ContentValues values = new ContentValues();
-            values.put(InputHistoryContract.InputEntry.COLUMN_TEXT, text);
-            values.put(InputHistoryContract.InputEntry.COLUMN_FREQUENCY, 1);
-            Uri newRow = resolver.insert(InputHistoryContract.InputEntry.CONTENT_URI, values);
-        }
-        cursor.close();
-    }*/
     public static void updateRecipes(Context context,int caller,String input,String rId) {
         Intent intent = new Intent(context, RecipesService.class);
         intent.putExtra(RecipesService.CALLER_EXTRA,caller);
@@ -81,6 +48,19 @@ public class Utilities {
                 RecipesContract.Favorites.CONTENT_URI,
                 values
         );
+    }
+    public static void removeFromFavorites(Context context,Uri uri){
+        context.getContentResolver().delete(uri,null,null);
+    }
+
+    public static void removeFavorites(Context context){
+        context.getContentResolver().delete(RecipesContract.Favorites.CONTENT_URI,null,null);
+    }
+
+    public static void clearData(Context context){
+        context.getContentResolver().delete(RecipesContract.Recipes.CONTENT_URI,null,null);
+        context.getContentResolver().delete(RecipesContract.Search.CONTENT_URI,null,null);
+        deleteCache(context);
 
     }
 
@@ -231,5 +211,27 @@ public class Utilities {
 
             }
         });
+    }
+
+    public static void deleteCache(Context context) {
+        try {
+            File dir = context.getCacheDir();
+            if (dir != null && dir.isDirectory()) {
+                deleteDir(dir);
+            }
+        } catch (Exception e) {}
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
     }
 }

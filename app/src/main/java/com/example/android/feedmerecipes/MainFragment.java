@@ -30,7 +30,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
             RecipesContract.Recipes.COLUMN_TITLE,
             RecipesContract.Recipes.COLUMN_URL,
             RecipesContract.Recipes.COLUMN_RID,
-            RecipesContract.Recipes.COLUMN_TEXT,
+            RecipesContract.Recipes.COLUMN_TEXT
     };
     // These indices are tied to RECIPE_COLUMNS.If RECIPE_COLUMNS changes, these must change.
     //public static final int COL_RECIPE_ID = 0;

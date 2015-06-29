@@ -115,12 +115,19 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
         int id = item.getItemId();
 
         switch (id){
-            case R.id.action_settings:
-                return true;
             case R.id.action_search:
                 return true;
             case R.id.action_favorites:
                 startActivity(new Intent(this,FavoritesActivity.class));
+                return true;
+            case R.id.action_clear_data:
+                Utilities.clearData(this);
+                Utilities.updateRecipes(this,RecipesService.CALLER_RECIPE, null,null);
+                if (mTwoPane){
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.recipeContainer, new RecipeFragment())
+                            .commit();
+                }
                 return true;
         }
 

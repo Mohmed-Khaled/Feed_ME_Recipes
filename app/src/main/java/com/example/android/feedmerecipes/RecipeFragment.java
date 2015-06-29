@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.feedmerecipes.data.RecipesContract;
 import com.example.android.feedmerecipes.data.RecipesContract.*;
 import com.example.android.feedmerecipes.extra.Utilities;
 
@@ -34,14 +35,21 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
             Recipes.COLUMN_TITLE,
             Recipes.COLUMN_URL,
             Recipes.COLUMN_RID,
-            Recipes.COLUMN_TEXT,
+            Recipes.COLUMN_TEXT
     };
     private static final String[] FAVORITES_COLUMNS = {
             Favorites.TABLE_NAME + "." + Favorites._ID,
             Favorites.COLUMN_TITLE,
             Favorites.COLUMN_URL,
             Favorites.COLUMN_RID,
-            Favorites.COLUMN_TEXT,
+            Favorites.COLUMN_TEXT
+    };
+    private static final String[] SEARCH_COLUMNS = {
+            RecipesContract.Search.TABLE_NAME + "." + RecipesContract.Search._ID,
+            RecipesContract.Search.COLUMN_TITLE,
+            RecipesContract.Search.COLUMN_URL,
+            RecipesContract.Search.COLUMN_RID,
+            RecipesContract.Search.COLUMN_TEXT
     };
     // These indices are tied to RECIPE_COLUMNS.If RECIPE_COLUMNS changes, these must change.
     //public static final int COL_RECIPE_ID = 0;
@@ -75,9 +83,6 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
         mTextView = (TextView) rootview.findViewById(R.id.recipeText);
         mFavButton = (Button) rootview.findViewById(R.id.recipeFavorite);
         mFavButton.setClickable(false);
-        if (mCaller == 1) {
-            mFavButton.setVisibility(View.GONE);
-        }
         return rootview;
 
     }
@@ -99,6 +104,9 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
                     projection = RECIPE_COLUMNS;
                     break;
                 case 1:
+                    projection = SEARCH_COLUMNS;
+                    break;
+                case 2:
                     projection = FAVORITES_COLUMNS;
                     break;
                 default:
@@ -126,8 +134,8 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
             mTitleView.setText(title);
             Utilities.loadImage(getActivity(), url, mImageView);
             mTextView.setText(text);
-            if (mCaller != 1) {
-                mFavButton.setText(getString(R.string.add_favorite));
+            if (mCaller != 2) {
+                mFavButton.setText("Add To Favorites");
                 mFavButton.setClickable(true);
                 mFavButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -140,6 +148,16 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
                                 text
                         );
                         Toast.makeText(getActivity(), "Added To Favorites", Toast.LENGTH_LONG).show();
+                    }
+                });
+            } else {
+                mFavButton.setText("Remove From Favorites");
+                mFavButton.setClickable(true);
+                mFavButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Utilities.removeFromFavorites(getActivity(),Favorites.buildFavoritesUri(rId));
+                        Toast.makeText(getActivity(), "Removed From Favorites", Toast.LENGTH_LONG).show();
                     }
                 });
             }

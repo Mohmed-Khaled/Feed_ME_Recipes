@@ -49,14 +49,17 @@ public class RecipeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_settings:
-                return true;
             case android.R.id.home:
                 switch (getIntent().getIntExtra(RecipeFragment.RECIPE_CALLER, -1)) {
                     case 0:
                         startActivity(new Intent(this, MainActivity.class));
                         break;
                     case 1:
+                        startActivity(new Intent(this, SearchActivity.class)
+                                .putExtra(SearchFragment.SEARCH_QUERY, getIntent().getData().getPathSegments().get(1))
+                                .putExtra(SearchFragment.LIST_GRID, getIntent().getBooleanExtra(SearchFragment.LIST_GRID,false)));
+                        break;
+                    case 2:
                         startActivity(new Intent(this, FavoritesActivity.class));
                         break;
                     default:
