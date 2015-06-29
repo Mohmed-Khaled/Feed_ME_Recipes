@@ -24,9 +24,6 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
 
     static final String RECIPE_URI = "URI";
     private Uri mUri;
-    private TextView mTitleView;
-    private ImageView mImageView;
-    private TextView mTextView;
     private static final int RECIPE_LOADER = 0;
     private static final String[] RECIPE_COLUMNS = {
             Recipes.TABLE_NAME + "." + Recipes._ID,
@@ -41,6 +38,9 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
     public static final int COL_RECIPE_URL = 2;
     //public static final int COL_RECIPE_RID = 3;
     public static final int COL_RECIPE_TEXT = 4;
+    private TextView mTitleView;
+    private ImageView mImageView;
+    private TextView mTextView;
 
     public RecipeFragment() {
     }
@@ -53,9 +53,9 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
             mUri = arguments.getParcelable(RECIPE_URI);
         }
         View rootview = inflater.inflate(R.layout.fragment_recipe, container, false);
-        mTitleView = (TextView) rootview.findViewById(R.id.ingrdTitle);
-        mImageView = (ImageView) rootview.findViewById(R.id.ingrdImage);
-        mTextView = (TextView) rootview.findViewById(R.id.ingrdText);
+        mTitleView = (TextView) rootview.findViewById(R.id.recipeTitle);
+        mImageView = (ImageView) rootview.findViewById(R.id.recipeImage);
+        mTextView = (TextView) rootview.findViewById(R.id.recipeText);
         return rootview;
 
     }

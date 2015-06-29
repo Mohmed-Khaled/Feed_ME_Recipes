@@ -20,7 +20,7 @@ public class RecipeActivity extends AppCompatActivity {
             fragment.setArguments(arguments);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.IngrdContainer, fragment)
+                    .add(R.id.recipeContainer, fragment)
                     .commit();
         }
     }

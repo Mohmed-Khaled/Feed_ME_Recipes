@@ -125,7 +125,8 @@ public class Utilities {
         for (int i = 0;i < ingredients.length();i++){
             text += String.valueOf(i+1)+"] ";
             text += ingredients.optString(i);
-            text += ",\n";
+            if (i != ingredients.length() - 1)
+                text += ",\n";
         }
         returnValues.put(RecipesContract.Recipes.COLUMN_TEXT, text);
         return returnValues;

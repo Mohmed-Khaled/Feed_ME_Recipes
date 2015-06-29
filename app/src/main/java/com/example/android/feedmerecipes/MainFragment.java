@@ -21,6 +21,9 @@ import com.example.android.feedmerecipes.service.RecipesService;
 public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     protected RecipesAdapter mAdapter;
+    ListView mListView;
+    private int mPosition = ListView.INVALID_POSITION;
+    private static final String SELECTED_KEY = "selected_position";
     private static final int MAIN_LOADER = 0;
     private static final String[] RECIPE_COLUMNS = {
             RecipesContract.Recipes.TABLE_NAME + "." + RecipesContract.Recipes._ID,
@@ -46,20 +49,31 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         mAdapter = new RecipesAdapter(getActivity(),null,0);
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         // Get a reference to the ListView, and attach this adapter to it.
-        ListView listView = (ListView) rootView.findViewById(R.id.main_list);
-        listView.setAdapter(mAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListView = (ListView) rootView.findViewById(R.id.main_list);
+        mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 if (cursor != null) {
                     String title = cursor.getString(COL_RECIPE_TITLE);
                     String rId = cursor.getString(COL_RECIPE_RID);
-                    updateRecipes(title,rId);
+                    updateRecipes(title, rId);
                     ((Callback) getActivity()).onItemSelected(RecipesContract.Recipes.buildRecipeUri(rId));
                 }
+                mPosition = position;
             }
         });
+        // If there's instance state, mine it for useful information.
+        // The end-goal here is that the user never knows that turning their device sideways
+        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
+        // or magically appeared to take advantage of room, but data or place in the app was never
+        // actually *lost*.
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+            // The listview probably hasn't even been populated yet.  Actually perform the
+            // swapout in onLoadFinished.
+            mPosition = savedInstanceState.getInt(SELECTED_KEY);
+        }
         return rootView;
     }
 
@@ -82,20 +96,37 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
+        // so check for that before storing.
+        if (mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String sortOrder = RecipesContract.Recipes._ID + " DESC";
         return new CursorLoader(
                 getActivity(),
                 RecipesContract.Recipes.CONTENT_URI,
                 RECIPE_COLUMNS,
                 null,
                 null,
-                null
+                sortOrder
         );
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
+        if (mPosition != ListView.INVALID_POSITION) {
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            mListView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
