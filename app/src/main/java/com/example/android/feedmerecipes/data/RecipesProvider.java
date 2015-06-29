@@ -21,6 +21,11 @@ public class RecipesProvider extends ContentProvider {
 
     private static final int RECIPES = 100;
     private static final int RECIPE = 101;
+    private static final int HISTORY = 102;
+    private static final int SEARCH = 103;
+    private static final int SEARCH_ITEM = 104;
+    private static final int FAVORITES = 105;
+    private static final int FAVORITE = 106;
 
     private static UriMatcher buildUriMatcher() {
         // I know what you're thinking.  Why create a UriMatcher when you can use regular
@@ -35,6 +40,11 @@ public class RecipesProvider extends ContentProvider {
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, RecipesContract.PATH_RECIPES, RECIPES);
         matcher.addURI(authority, RecipesContract.PATH_RECIPES + "/*", RECIPE);
+        matcher.addURI(authority, RecipesContract.PATH_HISTORY , HISTORY);
+        matcher.addURI(authority, RecipesContract.PATH_SEARCH + "/*", SEARCH);
+        matcher.addURI(authority, RecipesContract.PATH_SEARCH + "/*/*", SEARCH_ITEM);
+        matcher.addURI(authority, RecipesContract.PATH_FAVORITES, FAVORITES);
+        matcher.addURI(authority, RecipesContract.PATH_FAVORITES + "/*", FAVORITE);
 
         return matcher;
     }
@@ -54,7 +64,7 @@ public class RecipesProvider extends ContentProvider {
         Cursor retCursor;
         switch (match) {
             case RECIPE:
-                String recipeRId = RecipesContract.Recipes.getUriParam(uri);
+                String recipeRId = RecipesContract.getUriParam(uri);
                 selection = RecipesContract.Recipes.COLUMN_RID + " = ?";
                 selectionArgs = new String[] {recipeRId};
                 retCursor = mOpenHelper.getReadableDatabase().query(
@@ -78,6 +88,71 @@ public class RecipesProvider extends ContentProvider {
                         null
                 );
                 break;
+            case HISTORY:
+                sortOrder = RecipesContract.History.COLUMN_FREQUENCY + " DESC";
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        RecipesContract.History.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case SEARCH:
+                String searchInput = RecipesContract.getUriParam(uri);
+                selection = RecipesContract.Search.COLUMN_INPUT + " = ?";
+                selectionArgs = new String[] {searchInput};
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        RecipesContract.Search.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null
+                );
+                break;
+            case SEARCH_ITEM:
+                String searchRId = RecipesContract.getUriParam(uri);
+                selection = RecipesContract.Search.COLUMN_RID + " = ?";
+                selectionArgs = new String[] {searchRId};
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        RecipesContract.Search.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null
+                );
+                break;
+            case FAVORITES:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        RecipesContract.Favorites.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null
+                );
+                break;
+            case FAVORITE:
+                String favoriteRId = RecipesContract.getUriParam(uri);
+                selection = RecipesContract.Favorites.COLUMN_RID + " = ?";
+                selectionArgs = new String[] {favoriteRId};
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        RecipesContract.Favorites.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        null
+                );
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -91,10 +166,20 @@ public class RecipesProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
 
         switch (match) {
-            case RECIPE:
-                return RecipesContract.Recipes.CONTENT_ITEM_TYPE;
             case RECIPES:
                 return RecipesContract.Recipes.CONTENT_TYPE;
+            case RECIPE:
+                return RecipesContract.Recipes.CONTENT_ITEM_TYPE;
+            case HISTORY:
+                return RecipesContract.History.CONTENT_TYPE;
+            case SEARCH:
+                return RecipesContract.Search.CONTENT_TYPE;
+            case SEARCH_ITEM:
+                return RecipesContract.Search.CONTENT_ITEM_TYPE;
+            case FAVORITES:
+                return RecipesContract.Favorites.CONTENT_TYPE;
+            case FAVORITE:
+                return RecipesContract.Favorites.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -104,16 +189,50 @@ public class RecipesProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues contentValues) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
+        Long insertID;
         Uri newInsert;
         switch (match) {
             case RECIPES:
-                long insertID = db.insert(
+                insertID = db.insert(
                         RecipesContract.Recipes.TABLE_NAME,
                         null,
                         contentValues
                 );
                 if (insertID > 0)
                     newInsert = RecipesContract.Recipes.buildRecipeUri(insertID);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            case HISTORY:
+                insertID = db.insert(
+                        RecipesContract.History.TABLE_NAME,
+                        null,
+                        contentValues
+                );
+                if (insertID > 0)
+                    newInsert = RecipesContract.History.buildHistoryUri(insertID);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            case SEARCH:
+                insertID = db.insert(
+                        RecipesContract.Search.TABLE_NAME,
+                        null,
+                        contentValues
+                );
+                if (insertID > 0)
+                    newInsert = RecipesContract.Search.buildSearchUri(insertID);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            case FAVORITES:
+                insertID = db.insert(
+                        RecipesContract.Favorites.TABLE_NAME,
+                        null,
+                        contentValues
+                );
+                if (insertID > 0)
+                    newInsert = RecipesContract.Favorites.buildFavoritesUri(insertID);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -124,7 +243,6 @@ public class RecipesProvider extends ContentProvider {
         return newInsert;
     }
 
-
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -132,6 +250,33 @@ public class RecipesProvider extends ContentProvider {
         int rowsDeleted;
         switch (match) {
             case RECIPES:
+                rowsDeleted = db.delete(RecipesContract.Recipes.TABLE_NAME,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            case HISTORY:
+                rowsDeleted = db.delete(RecipesContract.History.TABLE_NAME,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            case SEARCH:
+                rowsDeleted = db.delete(RecipesContract.Search.TABLE_NAME,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            case FAVORITES:
+                rowsDeleted = db.delete(RecipesContract.Recipes.TABLE_NAME,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            case FAVORITE:
+                String favoriteRId = RecipesContract.getUriParam(uri);
+                selection = RecipesContract.Favorites.COLUMN_RID + " = ?";
+                selectionArgs = new String[] {favoriteRId};
                 rowsDeleted = db.delete(RecipesContract.Recipes.TABLE_NAME,
                         selection,
                         selectionArgs
@@ -154,9 +299,19 @@ public class RecipesProvider extends ContentProvider {
         int rowsUpdated;
         switch (match) {
             case RECIPE:
-                String recipeRId = RecipesContract.Recipes.getUriParam(uri);
+                String recipeRId = RecipesContract.getUriParam(uri);
                 selection = RecipesContract.Recipes.COLUMN_RID + " = ?";
                 selectionArgs = new String[] {recipeRId};
+                rowsUpdated = db.update(RecipesContract.Recipes.TABLE_NAME,
+                        contentValues,
+                        selection,
+                        selectionArgs
+                );
+                break;
+            case SEARCH_ITEM:
+                String searchRId = RecipesContract.getUriParam(uri);
+                selection = RecipesContract.Search.COLUMN_RID + " = ?";
+                selectionArgs = new String[] {searchRId};
                 rowsUpdated = db.update(RecipesContract.Recipes.TABLE_NAME,
                         contentValues,
                         selection,
@@ -176,13 +331,28 @@ public class RecipesProvider extends ContentProvider {
     public int bulkInsert(Uri uri, @NonNull ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
+        int returnCount = 0;
         switch (match) {
             case RECIPES:
                 db.beginTransaction();
-                int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insert(RecipesContract.Recipes.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case SEARCH:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(RecipesContract.Search.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
                         }

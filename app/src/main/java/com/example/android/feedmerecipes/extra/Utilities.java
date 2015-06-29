@@ -2,6 +2,7 @@ package com.example.android.feedmerecipes.extra;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.example.android.feedmerecipes.data.RecipesContract;
+import com.example.android.feedmerecipes.service.RecipesService;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -61,6 +63,27 @@ public class Utilities {
         }
         cursor.close();
     }*/
+    public static void updateRecipes(Context context,int caller,String input,String title,String rId) {
+        Intent intent = new Intent(context, RecipesService.class);
+        intent.putExtra(RecipesService.CALLER_EXTRA,caller);
+        intent.putExtra(RecipesService.INPUT_EXTRA,input);
+        intent.putExtra(RecipesService.TITLE_EXTRA,title);
+        intent.putExtra(RecipesService.RID_EXTRA,rId);
+        context.startService(intent);
+    }
+
+    public static void addToFavorites(Context context,String title,String url,String rId,String text){
+        ContentValues values = new ContentValues();
+        values.put(RecipesContract.Favorites.COLUMN_TITLE,title);
+        values.put(RecipesContract.Favorites.COLUMN_URL,url);
+        values.put(RecipesContract.Favorites.COLUMN_RID,rId);
+        values.put(RecipesContract.Favorites.COLUMN_TEXT,text);
+        context.getContentResolver().insert(
+                RecipesContract.Favorites.CONTENT_URI,
+                values
+        );
+
+    }
 
     public static boolean isNetworkStatusAvailable(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -116,7 +139,25 @@ public class Utilities {
         }
         return returnValues;
     }
-    public static ContentValues getRecipeData(JSONObject jsonObject)
+    public static ContentValues[] getSearchData(String input,JSONObject jsonObject)
+    {
+        JSONArray jsonArray = jsonObject.optJSONArray("recipes");
+        ContentValues[] returnValues = new ContentValues[jsonArray.length()];
+        for (int i = 0;i < jsonArray.length();i++){
+            JSONObject jo = jsonArray.optJSONObject(i);
+            String title = jo.optString("title");
+            String url = jo.optString("image_url");
+            String rId  = jo.optString("recipe_id");
+            ContentValues values = new ContentValues();
+            values.put(RecipesContract.Search.COLUMN_INPUT,input);
+            values.put(RecipesContract.Search.COLUMN_TITLE, title);
+            values.put(RecipesContract.Search.COLUMN_URL, url);
+            values.put(RecipesContract.Search.COLUMN_RID, rId);
+            returnValues[i] = values;
+        }
+        return returnValues;
+    }
+    public static ContentValues getRecipeData(int caller,JSONObject jsonObject)
     {
         ContentValues returnValues = new ContentValues() ;
         String text = "";
@@ -128,8 +169,16 @@ public class Utilities {
             if (i != ingredients.length() - 1)
                 text += ",\n";
         }
-        returnValues.put(RecipesContract.Recipes.COLUMN_TEXT, text);
-        return returnValues;
+        switch(caller){
+            case 0:
+                returnValues.put(RecipesContract.Recipes.COLUMN_TEXT, text);
+                return returnValues;
+            case 1:
+                returnValues.put(RecipesContract.Search.COLUMN_TEXT, text);
+                return returnValues;
+            default:
+                throw new UnsupportedOperationException("Unknown caller: " + caller);
+        }
     }
 
     public static void loadImage(final Context context,final String imageUrl, final ImageView image){

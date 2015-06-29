@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/divider"
-    tools:context=".SearchFragment">
+    android:background="@color/list"
+    tools:context="com.example.android.feedmerecipes.MainFragment">
 
     <ListView
         android:id="@+id/main_list"

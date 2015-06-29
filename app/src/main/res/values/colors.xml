@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="actionBar">#3F51B5</color>
     <color name="divider">#B6B6B6</color>
     <color name="list">#B3E5FC</color>
+    <color name="fav_text">#FF3D00</color>
 </resources>
