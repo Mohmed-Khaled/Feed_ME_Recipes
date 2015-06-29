@@ -75,6 +75,9 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
         mTextView = (TextView) rootview.findViewById(R.id.recipeText);
         mFavButton = (Button) rootview.findViewById(R.id.recipeFavorite);
         mFavButton.setClickable(false);
+        if (mCaller == 1) {
+            mFavButton.setVisibility(View.GONE);
+        }
         return rootview;
 
     }
@@ -123,21 +126,23 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
             mTitleView.setText(title);
             Utilities.loadImage(getActivity(), url, mImageView);
             mTextView.setText(text);
-            mFavButton.setText(getString(R.string.add_favorite));
-            mFavButton.setClickable(true);
-            mFavButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Utilities.addToFavorites(
-                            getActivity(),
-                            title,
-                            url,
-                            rId,
-                            text
-                    );
-                    Toast.makeText(getActivity(),"Added To Favorites",Toast.LENGTH_LONG).show();
-                }
-            });
+            if (mCaller != 1) {
+                mFavButton.setText(getString(R.string.add_favorite));
+                mFavButton.setClickable(true);
+                mFavButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Utilities.addToFavorites(
+                                getActivity(),
+                                title,
+                                url,
+                                rId,
+                                text
+                        );
+                        Toast.makeText(getActivity(), "Added To Favorites", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
         }
     }
 

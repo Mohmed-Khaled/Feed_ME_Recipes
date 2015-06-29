@@ -48,21 +48,24 @@ public class RecipeActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == android.R.id.home){
-            switch (getIntent().getIntExtra(RecipeFragment.RECIPE_CALLER,-1)){
-                case 0:
-                    startActivity(new Intent(this,MainActivity.class));
-                    break;
-                case 1:
-                    startActivity(new Intent(this,FavoritesActivity.class));
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unknown caller activity");
-            }
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case android.R.id.home:
+                switch (getIntent().getIntExtra(RecipeFragment.RECIPE_CALLER, -1)) {
+                    case 0:
+                        startActivity(new Intent(this, MainActivity.class));
+                        break;
+                    case 1:
+                        startActivity(new Intent(this, FavoritesActivity.class));
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Unknown caller activity");
+                }
+                return true;
+            case R.id.action_favorites:
+                startActivity(new Intent(this, FavoritesActivity.class));
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

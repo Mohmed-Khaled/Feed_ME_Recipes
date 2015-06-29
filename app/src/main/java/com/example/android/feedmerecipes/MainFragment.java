@@ -21,7 +21,7 @@ import com.example.android.feedmerecipes.service.RecipesService;
 public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     protected RecipesAdapter mAdapter;
-    ListView mListView;
+    private ListView mListView;
     private int mPosition = ListView.INVALID_POSITION;
     private static final String SELECTED_KEY = "selected_position";
     private static final int MAIN_LOADER = 0;
@@ -34,7 +34,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     };
     // These indices are tied to RECIPE_COLUMNS.If RECIPE_COLUMNS changes, these must change.
     //public static final int COL_RECIPE_ID = 0;
-    public static final int COL_RECIPE_TITLE = 1;
+    //public static final int COL_RECIPE_TITLE = 1;
     //public static final int COL_RECIPE_URL = 2;
     public static final int COL_RECIPE_RID = 3;
     //public static final int COL_RECIPE_TEXT = 4;
@@ -56,9 +56,8 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 if (cursor != null) {
-                    String title = cursor.getString(COL_RECIPE_TITLE);
                     String rId = cursor.getString(COL_RECIPE_RID);
-                    Utilities.updateRecipes(getActivity(),RecipesService.CALLER_RECIPE,null,title, rId);
+                    Utilities.updateRecipes(getActivity(),RecipesService.CALLER_RECIPE,null, rId);
                     ((Callback) getActivity()).onItemSelected(RecipesContract.Recipes.buildRecipeUri(rId));
                 }
                 mPosition = position;
@@ -80,7 +79,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onStart() {
         super.onStart();
-        Utilities.updateRecipes(getActivity(),RecipesService.CALLER_RECIPE, null,null,null);
+        Utilities.updateRecipes(getActivity(),RecipesService.CALLER_RECIPE, null,null);
     }
 
     @Override

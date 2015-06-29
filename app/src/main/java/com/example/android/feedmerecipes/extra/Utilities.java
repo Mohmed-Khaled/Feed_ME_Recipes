@@ -63,11 +63,10 @@ public class Utilities {
         }
         cursor.close();
     }*/
-    public static void updateRecipes(Context context,int caller,String input,String title,String rId) {
+    public static void updateRecipes(Context context,int caller,String input,String rId) {
         Intent intent = new Intent(context, RecipesService.class);
         intent.putExtra(RecipesService.CALLER_EXTRA,caller);
         intent.putExtra(RecipesService.INPUT_EXTRA,input);
-        intent.putExtra(RecipesService.TITLE_EXTRA,title);
         intent.putExtra(RecipesService.RID_EXTRA,rId);
         context.startService(intent);
     }

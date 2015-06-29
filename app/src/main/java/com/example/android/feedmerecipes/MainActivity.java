@@ -12,7 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.android.feedmerecipes.data.RecipesContract;
 import com.example.android.feedmerecipes.extra.Utilities;
+import com.example.android.feedmerecipes.service.RecipesService;
 
 public class MainActivity extends AppCompatActivity implements MainFragment.Callback {
 
@@ -83,10 +85,17 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-/*                    Utilities.updateRecipes(getApplicationContext(),RecipesService.CALLER_SEARCH,query,null,null);
-                    Intent intent = new Intent(getApplicationContext(),SearchActivity.class);
-                    intent.putExtra(SearchFragment.SEARCH_URI,"query");*/
-                    return false;
+                    if (!Utilities.isNetworkStatusAvailable(getApplicationContext())){
+                        Toast.makeText(getApplicationContext(),"No Internet Connection",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Utilities.updateRecipes(getApplicationContext(), RecipesService.CALLER_SEARCH, query, null);
+                        Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+                        intent.setData(RecipesContract.Search.buildSearchUri(query));
+                        intent.putExtra(SearchFragment.SEARCH_QUERY,query);
+                        intent.putExtra(SearchFragment.LIST_GRID,mTwoPane);
+                        startActivity(intent);
+                    }
+                    return true;
                 }
 
                 @Override
