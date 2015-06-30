@@ -1,5 +1,6 @@
 package com.example.android.feedmerecipes;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,7 +8,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -15,8 +21,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.feedmerecipes.data.RecipesContract;
-import com.example.android.feedmerecipes.data.RecipesContract.*;
+import com.example.android.feedmerecipes.data.RecipesContract.Favorites;
+import com.example.android.feedmerecipes.data.RecipesContract.Recipes;
+import com.example.android.feedmerecipes.data.RecipesContract.Search;
 import com.example.android.feedmerecipes.extra.Utilities;
 
 
@@ -27,6 +34,9 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
 
     static final String RECIPE_URI = "URI";
     static final String RECIPE_CALLER = "CALLER";
+    private static final String RECIPE_SHARE_HASHTAG = " #FeedMERecipes";
+    private ShareActionProvider mShareActionProvider;
+
     private Uri mUri;
     private int mCaller;
     private static final int RECIPE_LOADER = 0;
@@ -45,11 +55,11 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
             Favorites.COLUMN_TEXT
     };
     private static final String[] SEARCH_COLUMNS = {
-            RecipesContract.Search.TABLE_NAME + "." + RecipesContract.Search._ID,
-            RecipesContract.Search.COLUMN_TITLE,
-            RecipesContract.Search.COLUMN_URL,
-            RecipesContract.Search.COLUMN_RID,
-            RecipesContract.Search.COLUMN_TEXT
+            Search.TABLE_NAME + "." + Search._ID,
+            Search.COLUMN_TITLE,
+            Search.COLUMN_URL,
+            Search.COLUMN_RID,
+            Search.COLUMN_TEXT
     };
     // These indices are tied to RECIPE_COLUMNS.If RECIPE_COLUMNS changes, these must change.
     //public static final int COL_RECIPE_ID = 0;
@@ -63,6 +73,7 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
     private Button mFavButton;
 
     public RecipeFragment() {
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -84,6 +95,19 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
         mFavButton = (Button) rootview.findViewById(R.id.recipeFavorite);
         mFavButton.setClickable(false);
         return rootview;
+
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_recipe_fragment, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
     }
 
@@ -161,11 +185,24 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
                     }
                 });
             }
+            // If onCreateOptionsMenu has already happened, we need to update the share intent now.
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(createShareRecipeIntent(title,text));
+            }
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    private Intent createShareRecipeIntent(String title,String text) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        String shareRecipe = "Recipe for " + title + ": \n";
+        shareRecipe += text + "\n" + RECIPE_SHARE_HASHTAG + "\n";
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareRecipe);
+        return shareIntent;
     }
 }

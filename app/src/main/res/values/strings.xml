@@ -7,5 +7,6 @@
     <string name="action_favorites">Favorites</string>
     <string name="action_remove_favorites">Remove All Favorites</string>
     <string name="action_clear_data">Clear data</string>
+    <string name="action_share">Share</string>
 
 </resources>
