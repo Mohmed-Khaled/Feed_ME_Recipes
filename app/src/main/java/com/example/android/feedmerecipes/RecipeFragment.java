@@ -157,9 +157,13 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
             mFavButton.setClickable(true);
             if (!Utilities.checkIfFavorite(getActivity(),Favorites.buildFavoritesUri(rId))) {
                 mFavButton.setText("Add To Favorites");
-                mFavButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+            } else {
+                mFavButton.setText("Remove From Favorites");
+            }
+            mFavButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!Utilities.checkIfFavorite(getActivity(),Favorites.buildFavoritesUri(rId))){
                         Utilities.addToFavorites(
                                 getActivity(),
                                 title,
@@ -169,19 +173,13 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
                         );
                         Toast.makeText(getActivity(), "Added To Favorites", Toast.LENGTH_LONG).show();
                         mFavButton.setText("Remove From Favorites");
-                    }
-                });
-            } else {
-                mFavButton.setText("Remove From Favorites");
-                mFavButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                    } else {
                         Utilities.removeFromFavorites(getActivity(),Favorites.buildFavoritesUri(rId));
                         Toast.makeText(getActivity(), "Removed From Favorites", Toast.LENGTH_LONG).show();
                         mFavButton.setText("Add To Favorites");
                     }
-                });
-            }
+                }
+            });
             // If onCreateOptionsMenu has already happened, we need to update the share intent now.
             if (mShareActionProvider != null) {
                 mShareActionProvider.setShareIntent(createShareRecipeIntent(title,text));
