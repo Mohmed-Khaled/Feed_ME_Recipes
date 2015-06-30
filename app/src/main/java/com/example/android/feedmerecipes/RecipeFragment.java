@@ -79,10 +79,6 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        if (!Utilities.isNetworkStatusAvailable(getActivity())){
-            Toast.makeText(getActivity()
-                    , "No Internet Connection", Toast.LENGTH_SHORT).show();
-        }
         Bundle arguments = getArguments();
         if (arguments != null) {
             mUri = arguments.getParcelable(RECIPE_URI);
@@ -158,9 +154,9 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
             mTitleView.setText(title);
             Utilities.loadImage(getActivity(), url, mImageView);
             mTextView.setText(text);
-            if (mCaller != 2) {
+            mFavButton.setClickable(true);
+            if (!Utilities.checkIfFavorite(getActivity(),Favorites.buildFavoritesUri(rId))) {
                 mFavButton.setText("Add To Favorites");
-                mFavButton.setClickable(true);
                 mFavButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -172,16 +168,17 @@ public class RecipeFragment extends Fragment implements LoaderManager.LoaderCall
                                 text
                         );
                         Toast.makeText(getActivity(), "Added To Favorites", Toast.LENGTH_LONG).show();
+                        mFavButton.setText("Remove From Favorites");
                     }
                 });
             } else {
                 mFavButton.setText("Remove From Favorites");
-                mFavButton.setClickable(true);
                 mFavButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Utilities.removeFromFavorites(getActivity(),Favorites.buildFavoritesUri(rId));
                         Toast.makeText(getActivity(), "Removed From Favorites", Toast.LENGTH_LONG).show();
+                        mFavButton.setText("Add To Favorites");
                     }
                 });
             }

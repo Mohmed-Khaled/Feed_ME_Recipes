@@ -20,6 +20,7 @@ import com.example.android.feedmerecipes.service.RecipesService;
 
 public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static boolean pendingRefresh = false;
     protected RecipesAdapter mAdapter;
     private ListView mListView;
     private int mPosition = ListView.INVALID_POSITION;
@@ -115,6 +116,9 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
+        if(!Utilities.isNetworkStatusAvailable(getActivity())){
+           pendingRefresh = true;
+        }
         if (mPosition != ListView.INVALID_POSITION) {
             // If we don't need to restart the loader, and there's a desired position to restore
             // to, do so now.

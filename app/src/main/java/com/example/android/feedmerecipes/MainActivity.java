@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
         if (!Utilities.isNetworkStatusAvailable(this)){
             Toast.makeText(this,"No Internet Connection",Toast.LENGTH_SHORT).show();
         }
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.actionBar)));
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.actionBar)));
         if (findViewById(R.id.recipeContainer) != null) {
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be
@@ -48,25 +49,29 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
 
     @Override
     public void onItemSelected(Uri recipeUri) {
-        if (mTwoPane){
-            // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
-            Bundle args = new Bundle();
-            args.putParcelable(RecipeFragment.RECIPE_URI, recipeUri);
-            args.putInt(RecipeFragment.RECIPE_CALLER, 0);
+        if (Utilities.isNetworkStatusAvailable(this) || Utilities.checkData(this,recipeUri)){
+            if (mTwoPane){
+                // In two-pane mode, show the detail view in this activity by
+                // adding or replacing the detail fragment using a
+                // fragment transaction.
+                Bundle args = new Bundle();
+                args.putParcelable(RecipeFragment.RECIPE_URI, recipeUri);
+                args.putInt(RecipeFragment.RECIPE_CALLER, 0);
 
-            RecipeFragment fragment = new RecipeFragment();
-            fragment.setArguments(args);
+                RecipeFragment fragment = new RecipeFragment();
+                fragment.setArguments(args);
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.recipeContainer, fragment)
-                    .commit();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.recipeContainer, fragment)
+                        .commit();
+            } else {
+                Intent intent = new Intent(this,RecipeActivity.class);
+                intent.setData(recipeUri);
+                intent.putExtra(RecipeFragment.RECIPE_CALLER,0);
+                startActivity(intent);
+            }
         } else {
-            Intent intent = new Intent(this,RecipeActivity.class);
-            intent.setData(recipeUri);
-            intent.putExtra(RecipeFragment.RECIPE_CALLER,0);
-            startActivity(intent);
+            Toast.makeText(getApplicationContext(),"No Internet Connection",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -85,15 +90,16 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    if (!Utilities.isNetworkStatusAvailable(getApplicationContext())){
-                        Toast.makeText(getApplicationContext(),"No Internet Connection",Toast.LENGTH_SHORT).show();
-                    } else {
+                    if (Utilities.isNetworkStatusAvailable(getApplicationContext())
+                            || Utilities.checkSearchData(getApplicationContext(), RecipesContract.Search.buildSearchUri(query))){
                         Utilities.updateRecipes(getApplicationContext(), RecipesService.CALLER_SEARCH, query, null);
                         Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
                         intent.setData(RecipesContract.Search.buildSearchUri(query));
                         intent.putExtra(SearchFragment.SEARCH_QUERY,query);
                         intent.putExtra(SearchFragment.LIST_GRID,mTwoPane);
                         startActivity(intent);
+                    } else {
+                        Toast.makeText(getApplicationContext(),"No Internet Connection",Toast.LENGTH_SHORT).show();
                     }
                     return true;
                 }

@@ -3,6 +3,7 @@ package com.example.android.feedmerecipes.extra;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -62,6 +63,53 @@ public class Utilities {
         context.getContentResolver().delete(RecipesContract.Search.CONTENT_URI,null,null);
         deleteCache(context);
 
+    }
+
+    public static boolean checkData(Context context,Uri uri){
+        Cursor cursor = context.getContentResolver().query(
+                uri,  // Table to Query
+                null,
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null // sort order
+        );
+        if (cursor.moveToFirst()){
+            if  (cursor.getString(cursor.getColumnIndex(RecipesContract.Recipes.COLUMN_TEXT)) != null){
+                return true;
+            }
+        }
+        cursor.close();
+        return false;
+    }
+
+    public static boolean checkSearchData(Context context,Uri uri){
+        Cursor cursor = context.getContentResolver().query(
+                uri,  // Table to Query
+                null,
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null // sort order
+        );
+        if (cursor.moveToFirst()){
+                return true;
+        }
+        cursor.close();
+        return false;
+    }
+
+    public static boolean checkIfFavorite(Context context,Uri uri){
+        Cursor cursor = context.getContentResolver().query(
+                uri,  // Table to Query
+                null,
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null // sort order
+        );
+        if (cursor.moveToFirst()){
+            return true;
+        }
+        cursor.close();
+        return false;
     }
 
     public static boolean isNetworkStatusAvailable(Context context) {
@@ -167,13 +215,13 @@ public class Utilities {
                 new ImageLoaderConfiguration.Builder(context)
                         .denyCacheImageMultipleSizesInMemory()
                         .build();
-        imageLoader.init(mImageLoaderConfig);
         DisplayImageOptions defaultOptions =
                 new DisplayImageOptions.Builder()
+                        .showImageOnLoading(android.R.drawable.stat_sys_download)
                         .cacheInMemory(true)
                         .cacheOnDisk(true)
                         .build();
-
+        imageLoader.init(mImageLoaderConfig);
         imageLoader.displayImage(imageUrl, image, defaultOptions,new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String s, View view) {
@@ -219,19 +267,22 @@ public class Utilities {
             if (dir != null && dir.isDirectory()) {
                 deleteDir(dir);
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
+            for (String aChildren : children) {
+                boolean success = deleteDir(new File(dir, aChildren));
                 if (!success) {
                     return false;
                 }
             }
+            return dir.delete();
         }
-        return dir.delete();
+        return false;
     }
 }
